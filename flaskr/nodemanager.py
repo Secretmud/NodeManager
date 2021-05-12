@@ -3,8 +3,14 @@ from tools.find_units import *
 app = Flask(__name__)
 
 def get_data(data):
-    us = UnitSearch("192.168.1.1", "0.0.0.0")
+    us = UnitSearch()
+    us.set_ip("192.168.1.1")
+    us.set_subnet("255.255.255.0")
     active, ssh = us.parallel_calls()
+    ax = UnitSearch()
+    print(us.parallel_calls())
+    print(ax.parallel_calls())
+
     if data == "active":
         return active
     elif data == "ssh":

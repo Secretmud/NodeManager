@@ -3,13 +3,27 @@ import time
 import subprocess
 import multiprocessing as mp
 
-class UnitSearch:
+class Singleton(type):
+    _instance = {}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instance:
+            cls._instance[cls] = super.__call__(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instance[cls]
 
-    def __init__(self, start_ip, subnet):
-        self.start_ip = start_ip
-        self.subnet = subnet
+
+class UnitSearch(metaclass=Singleton):
+
+    def __init__(self):
+        self.start_ip = "" 
+        self.subnet = ""
         ssh_total = 0
         active_total = 0
+
+    def set_ip(self, ip):
+        self.start_ip = ip
+
+    def set_subnet(self, subnet):
+        self.subnet = subnet
 
     """
     parallel_calls - creates a CPU pool, and checks active IPs in the range
