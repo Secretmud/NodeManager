@@ -1,6 +1,19 @@
-from flask import Flask, jsonify
+from flask import (
+    Blueprint, flash, g, redirect, render_template, request, url_for
+)
+from werkzeug.exceptions import abort
+
+from flaskr.auth import login_required
+from flaskr.db import get_db
 from tools.find_units import *
-app = Flask(__name__)
+
+bp = Blueprint('node', __name__)
+
+@bp.route('/')
+def index():
+    db = get_db()
+    nodes = get_data("active");
+    return render_template('nodes/index.html', machines=nodes)
 
 def get_data(data):
     us = UnitSearch()
@@ -20,11 +33,11 @@ def get_data(data):
 
 
 
-@app.route('/active', methods=["GET"])
+@bp.route('/active', methods=["GET"])
 def active():
     return jsonify({"Machines": get_data("active")})
 
-@app.route('/ssh', methods=["GET"])
+@bp.route('/ssh', methods=["GET"])
 def ssh():
     return jsonify({"SSH": get_data("ssh")})
 
