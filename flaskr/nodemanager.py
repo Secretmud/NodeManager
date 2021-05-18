@@ -1,46 +1,50 @@
+import json
+
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for
+    Blueprint, flash, g, redirect, render_template, request, url_for, jsonify
 )
 from werkzeug.exceptions import abort
 
 from flaskr.auth import login_required
 from flaskr.db import get_db
-from tools.find_units import *
+from flaskr.tools.find_units import *
+from socket import gethostname
 
 bp = Blueprint('node', __name__)
+
 
 @bp.route('/')
 def index():
     db = get_db()
-    nodes = get_data("active");
-    return render_template('nodes/index.html', machines=nodes)
+    nodes = db.execute(
+        "SELECT id, lookup_id, created, ip, last_seen FROM machine ORDER BY id DESC"
+    ).fetchall()
+    return render_template('nodes/index.html', posts=nodes)
 
-def get_data(data):
+
+def get_data():
     us = UnitSearch()
     us.set_ip("192.168.1.1")
     us.set_subnet("255.255.255.0")
-    active, ssh = us.parallel_calls()
-    ax = UnitSearch()
-    print(us.parallel_calls())
-    print(ax.parallel_calls())
+    online_machines, ssh_port_open = us.parallel_calls()
+    dict = {}
+    i = 0
+    for online in online_machines:
+        ssh_enabled = True if (online in ssh_port_open) else False
+        dict[i] = {"ip": online, "SSH": ssh_enabled}
+        i += 1
 
-    if data == "active":
-        return active
-    elif data == "ssh":
-        return ssh
-    else:
-        return "no data"
+    return json.dumps(dict)
 
 
+@bp.route('/scan', methods=("GET", "POST"))
+@login_required
+def scan():
+    if request.method == "GET":
+        hosts = json.loads(get_data())
+        print(hosts)
+        for host in hosts:
+            print(host)
 
-@bp.route('/active', methods=["GET"])
-def active():
-    return jsonify({"Machines": get_data("active")})
 
-@bp.route('/ssh', methods=["GET"])
-def ssh():
-    return jsonify({"SSH": get_data("ssh")})
-
-
-if __name__ == "__main__":
-    app.run(debug = True)
+    return render_template('nodes/index.html')
