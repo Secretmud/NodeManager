@@ -14,30 +14,6 @@ class Singleton(type):
         return cls._instance[cls]
 
 
-def active_machines(ip):
-    respone = None
-    try:
-        respone = subprocess.check_output(["ping", "-c", "1", "-w", "1", ip],
-                                          stderr=subprocess.STDOUT,
-                                          universal_newlines=True)
-        return ip
-    except subprocess.CalledProcessError:
-        respone = None
-
-
-def locate_ssh(ip):
-    s = socket(AF_INET, SOCK_STREAM)
-    s.settimeout(1)
-    port = []
-    port.append(22)
-    try:
-        conn = s.connect((ip, port[0]))
-        s.close()
-        return ip
-    except error:
-        print(f"Couldn't connect to {ip} over port {port[0]}")
-
-
 class UnitSearch(metaclass=Singleton):
 
     def __init__(self):
@@ -62,11 +38,54 @@ class UnitSearch(metaclass=Singleton):
         pool = mp.Pool(processes=100)
         ip = self.start_ip.rsplit('.', 1)
         ips = [ip[0] + "." + str(i) for i in range(int(ip[1]), 255)]
-        active = pool.map(active_machines, ips)
+        active = pool.map(self.active_machines, ips)
         active = [i for i in active if i is not None]
-        ssh = pool.map(locate_ssh, active)
+        ssh = pool.map(self.locate_ssh, active)
         ssh = [i for i in ssh if i is not None]
         return active, ssh
+
+    def active_machines(self, ip):
+        respone = None
+        try:
+            respone = subprocess.check_output(["ping", "-c", "1", "-w", "1", ip],
+                                              stderr=subprocess.STDOUT,
+                                              universal_newlines=True)
+            return ip
+        except subprocess.CalledProcessError:
+            respone = None
+
+    def locate_ssh(self, ip):
+        s = socket(AF_INET, SOCK_STREAM)
+        s.settimeout(1)
+        port = []
+        port.append(22)
+        try:
+            conn = s.connect((ip, port[0]))
+            s.close()
+            return ip
+        except error:
+            print(f"Couldn't connect to {ip} over port {port[0]}")
+
+    def ping(self, ip):
+        import re
+        try:
+            result = subprocess.run(
+                # Command as a list, to avoid shell=True
+                ['ping', '-c', '1', ip],
+                # Expect textual output, not bytes; let Python .decode() on the fly
+                text=True,
+                # Shorthand for stdout=PIPE stderr=PIPE etc etc
+                capture_output=True,
+                # Raise an exception if ping fails (maybe try/except it separately?)
+                check=True)
+            for line in result.stdout.splitlines():
+                if "icmp_seq" in line:
+                    timing = line.split('time=')[-1].split(' ms')[0]
+                    print(ip, timing)
+                    return timing
+            return "Nan"
+        except subprocess.CalledProcessError:
+            return subprocess.CalledProcessError.stdout
 
 
 if __name__ == '__main__':
