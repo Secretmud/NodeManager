@@ -52,7 +52,9 @@ class UnitSearch(metaclass=Singleton):
                                               universal_newlines=True)
             return ip
         except subprocess.CalledProcessError:
-            respone = None
+            respone = subprocess.CalledProcessError.stdout
+
+        print(f"{respone}")
 
     def locate_ssh(self, ip):
         s = socket(AF_INET, SOCK_STREAM)

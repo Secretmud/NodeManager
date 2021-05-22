@@ -1,7 +1,7 @@
 
 .grid {
 	display: grid;
-	grid-template-columns: repeat(3, auto);
+	grid-template-columns: repeat(1, auto);
 }
 
 article.post {
@@ -24,3 +24,18 @@ article.post {
     font-weight: bold;
 }
 
+.item {
+    display: flex;
+    flex-direction: row;
+}
+
+.item > div {
+    text-align: start;
+    display: flex;
+    border: 1px solid;
+    width: 150px;
+}
+
+.item > div > .actions {
+    margin: 5px;
+}

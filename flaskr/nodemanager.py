@@ -2,10 +2,9 @@ import json
 
 import celery
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for, jsonify
+    Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
 from werkzeug.exceptions import abort
-
 from flaskr.auth import login_required
 from flaskr.db import get_db
 from flaskr.tools.find_units import *
@@ -96,7 +95,7 @@ def scan_single(ip):
         db.commit()
 
     else:
-        abort(404, "The requested ip is not availabel")
+        abort(404, "The requested ip is not available")
 
     nodes = db.execute(
         "SELECT * FROM machine LEFT OUTER JOIN ports ON machine.id=ports.ip_id"
@@ -116,7 +115,7 @@ def ping(ip):
         ping_time = us.ping(ip)
         print(ping_time)
     else:
-        abort(404, "The requested ip is not availabel")
+        abort(404, "The requested ip is not available")
 
     nodes = db.execute(
         "SELECT * FROM machine LEFT OUTER JOIN ports ON machine.id=ports.ip_id"
