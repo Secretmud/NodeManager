@@ -1,7 +1,7 @@
-
-.grid {
-	display: grid;
-	grid-template-columns: repeat(1, auto);
+body {
+    margin: 0;
+    font-family: monospace;
+    font-size: 16px;
 }
 
 article.post {
@@ -12,6 +12,7 @@ article.post {
 	padding: 5px;
 	box-shadow: 2px 2px 2px;
 }
+
 
 .tests {
     display: grid;
@@ -24,18 +25,55 @@ article.post {
     font-weight: bold;
 }
 
-.item {
-    display: flex;
-    flex-direction: row;
+.grid {
+	height: 50vh;
+	overflow-y: scroll;
+    border-collapse: collapse;
+    width: 100%;
+    border: 1px solid #ddd;
 }
 
-.item > div {
-    text-align: start;
-    display: flex;
-    border: 1px solid;
-    width: 150px;
+th, td {
+    text-align: left;
+    padding: 16px;
 }
 
-.item > div > .actions {
+.item > td > .actions {
     margin: 5px;
+}
+
+.nav_men {
+  display: flex;
+  flex-direction: row;
+  background: #ff0011;
+  color: #ffffff;
+}
+
+.site_name {
+    margin-left: 5px;
+}
+
+.nav_men_alignment {
+  width: 80vw;
+  display: flex;
+  justify-content: end;
+  list-style: none;
+}
+
+.nav_men_item {
+  margin-right: 10px;
+}
+
+.nav_men_item > a {
+  text-decoration: none;
+  color: #ffffff;
+}
+
+.nav_men_item > a:hover {
+    text-decoration: underline;
+}
+
+.username {
+    text-decoration: underline;
+    color: #000000;
 }

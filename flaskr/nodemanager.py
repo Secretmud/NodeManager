@@ -42,7 +42,7 @@ def get_data():
 def scan():
     if request.method == "GET":
         db = get_db()
-        hosts = json.loads(get_data())
+        hosts = get_data()
         for host in hosts:
             ip = hosts[host]['ip']
             ssh = hosts[host]['ssh']
