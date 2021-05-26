@@ -28,6 +28,8 @@ def create_app(test_config=None):
     db.init_app(app)
     from . import auth
     app.register_blueprint(auth.bp)
+    from . import settings
+    app.register_blueprint(settings.bp)
     from . import nodemanager
     app.register_blueprint(nodemanager.bp)
     app.add_url_rule('/', endpoint="index")

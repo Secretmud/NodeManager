@@ -44,31 +44,34 @@ def scan():
         db = get_db()
         hosts = get_data()
         for host in hosts:
-            ip = hosts[host]['ip']
-            ssh = hosts[host]['ssh']
-            check = db.execute("SELECT id FROM machine WHERE ip=?", (ip,)).fetchone()
-            if check is None:
-                db.execute("INSERT INTO machine (lookup_id, created, ip, last_seen) VALUES (?, ?, ?, ?)",
-                           (session['user_id'], datetime.now(), ip, datetime.now()))
-                db.commit()
-            check_ssh = db.execute("SELECT id FROM ports WHERE "
-                                   "ip_id=(SELECT machine.id FROM machine WHERE machine.ip=?)",
-                                   (ip,)).fetchone()
-            if check_ssh is None:
-                db.execute("INSERT INTO ports (port, ip_id) VALUES "
-                           "(?, (SELECT machine.id FROM machine WHERE machine.ip=?))",
-                           (ssh, ip))
-                db.commit()
+            try:
+                ip = hosts[host]['ip']
+                ssh = hosts[host]['ssh']
+                check = db.execute("SELECT id FROM machine WHERE ip=?", (ip,)).fetchone()
+                if check is None:
+                    db.execute("INSERT INTO machine (lookup_id, created, ip, last_seen) VALUES (?, ?, ?, ?)",
+                               (session['user_id'], datetime.now(), ip, datetime.now()))
+                    db.commit()
+                check_ssh = db.execute("SELECT id FROM ports WHERE "
+                                       "ip_id=(SELECT machine.id FROM machine WHERE machine.ip=?)",
+                                       (ip,)).fetchone()
+                if check_ssh is None:
+                    db.execute("INSERT INTO ports (port, ip_id) VALUES "
+                               "(?, (SELECT machine.id FROM machine WHERE machine.ip=?))",
+                               (ssh, ip))
+                    db.commit()
 
-            if check is not None:
-                db.execute("UPDATE machine SET last_seen = ? WHERE ip=?",
-                           (datetime.now(), ip))
-                db.commit()
-            if check_ssh is not None:
-                db.execute("UPDATE ports SET port = ? WHERE"
-                           " ip_id=(SELECT machine.id FROM machine WHERE machine.ip=?)",
-                           (ssh, ip))
-                db.commit()
+                if check is not None:
+                    db.execute("UPDATE machine SET last_seen = ? WHERE ip=?",
+                               (datetime.now(), ip))
+                    db.commit()
+                if check_ssh is not None:
+                    db.execute("UPDATE ports SET port = ? WHERE"
+                               " ip_id=(SELECT machine.id FROM machine WHERE machine.ip=?)",
+                               (ssh, ip))
+                    db.commit()
+            except TypeError:
+                print(f"Error: {TypeError}")
 
     nodes = db.execute(
         "SELECT * FROM machine LEFT OUTER JOIN ports ON machine.id=ports.ip_id"

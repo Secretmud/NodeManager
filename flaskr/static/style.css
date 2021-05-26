@@ -26,7 +26,7 @@ article.post {
 }
 
 .grid {
-	height: 50vh;
+	max-height: 50vh;
 	overflow-y: scroll;
     border-collapse: collapse;
     width: 100%;
@@ -38,14 +38,22 @@ th, td {
     padding: 16px;
 }
 
+tr:nth-child(even) {
+    background: #7FFFD4;
+}
+
+tr:not(:last-child) {
+    border-bottom: 1px solid #7aeec2;
+}
+
 .item > td > .actions {
     margin: 5px;
 }
 
 .nav_men {
-  display: flex;
-  flex-direction: row;
-  background: #ff0011;
+  display: grid;
+  grid-template-columns: 20% auto;
+  background: #ff5e68;
   color: #ffffff;
 }
 
@@ -54,10 +62,21 @@ th, td {
 }
 
 .nav_men_alignment {
-  width: 80vw;
   display: flex;
-  justify-content: end;
   list-style: none;
+}
+
+.align_start {
+    justify-content: start;
+}
+
+.align_end {
+    justify-content: end;
+}
+
+.grid_fill {
+    grid-column-start: 1;
+    grid-column-end: span 2;
 }
 
 .nav_men_item {
@@ -76,4 +95,42 @@ th, td {
 .username {
     text-decoration: underline;
     color: #000000;
+}
+
+/*
+ Login
+*/
+.login {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 3px 3px 18px -1px lightgrey;
+    padding: 10px;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.login-form > label, #username, #password {
+    border: none;
+    border-bottom: 1px solid lightgray;
+    outline: none;
+    margin: 2px;
+}
+
+.login-form > input[type="submit"] {
+    margin: 2px;
+}
+
+/*
+    ssh
+*/
+
+.ssh {
+    min-height: 50vh;
+    width: 100vw;
+    background: aliceblue;
 }

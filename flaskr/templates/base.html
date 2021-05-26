@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <nav class="nav_men">
   <h1 class="site_name">Node Manager</h1>
-  <ul class="nav_men_alignment">
+  <ul class="nav_men_alignment align_end">
     {% if g.user %}
       <li class="nav_men_item username"><span>{{ g.user['username'] }}</span>
       <li class="nav_men_item" ><a href="{{ url_for('auth.logout') }}">Log Out</a>
@@ -12,13 +12,20 @@
       <li class="nav_men_item"><a href="{{ url_for('auth.login') }}">Log In</a>
     {% endif %}
   </ul>
+  {% if g.user %}
+    <ul class="nav_men_alignment align_start grid_fill">
+      <li class="nav_men_item"><a href="{{ url_for('settings.setup') }}">Setup</a></li>
+      <li class="nav_men_item"><a href="/">Home</a></li>
+      <li class="nav_men_item"><a href="#">2</a></li>
+      <li class="nav_men_item"><a href="#">1</a></li>
+    </ul>
+  {% endif %}
 </nav>
 <section class="content">
-  <header>
-    {% block header %}{% endblock %}
-  </header>
-  {% for message in get_flashed_messages() %}
-    <div class="flash">{{ message }}</div>
-  {% endfor %}
-  {% block content %}{% endblock %}
+    {% block content %}
+    {% endblock %}
+</section>
+<section class="ssh">
+  {% block ssh %}
+  {% endblock %}
 </section>

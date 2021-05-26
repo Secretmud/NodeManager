@@ -1,53 +1,43 @@
 {% extends 'base.html' %}
 
-{% block header %}
-  <h1>{% block title %}Nodes{% endblock %}</h1>
-  {% if g.user %}
-    <a class="action" href="{{ url_for('node.scan') }}">Scan</a>
-  {% endif %}
-{% endblock %}
-
 {% if g.user %}
   {% block content %}
-  <table class="grid">
-    <tr class="item">
-      <th>Created</th>
-      <th>Last seen</th>
-      <th>IP</th>
-      <th>SSH</th>
-      <th>Actions</th>
-    </tr>
-  {% for machine in machines %}
-    <tr class="item">
-      <td>{{ machine['created'].strftime('%Y/%m/%d %H:%M') }}</td>
-      <td>{{ machine['last_seen'].strftime('%Y/%m/%d %H:%M') }}</td>
-      <td>{{ machine['ip'] }}</td>
-      <td>{{ "on" if  (machine['port'] == '1') else "off" }}</td>
-      <td>
-        {% if g.user %}
-          <a class="action" href="{{ url_for('node.scan_single', ip=machine['ip']) }}">Update</a>
-          <a class="action" href="{{ url_for('node.ping', ip=machine['ip']) }}">Ping</a>
-        {% endif %}
-      </td>
-    </tr>
-  {% endfor %}
-  </table>
-{% endblock %}
+    <h1>{% block title %}Nodes{% endblock %}</h1>
+    {% if g.user %}
+      <a class="action" href="{{ url_for('node.scan') }}">Scan</a>
+    {% endif %}
+
+    <table class="grid">
+      <tr class="item">
+        <th>Created</th>
+        <th>Last seen</th>
+        <th>IP</th>
+        <th>SSH</th>
+        <th>Actions</th>
+      </tr>
+    {% for machine in machines %}
+      <tr class="item">
+        <td>{{ machine['created'].strftime('%Y/%m/%d %H:%M') }}</td>
+        <td>{{ machine['last_seen'].strftime('%Y/%m/%d %H:%M') }}</td>
+        <td>{{ machine['ip'] }}</td>
+        <td>{{ "on" if  (machine['port'] == '1') else "off" }}</td>
+        <td>
+          {% if g.user %}
+            <a class="action" href="{{ url_for('node.scan_single', ip=machine['ip']) }}">Update</a>
+            <a class="action" href="{{ url_for('node.ping', ip=machine['ip']) }}">Ping</a>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </table>
+  {% endblock %}
 {% endif %}
 
-<!--
-<h1>Looked up by: {{ g.user['username'] }}</h1>
-<div class="about">by {{ machine['lookup_id'] }}.</div>
-<div class="post">
-  <div>Created: {{ machine['created'].strftime('%Y/%m/%d %H:%M') }}</div>
-  <div>Last seen: {{ machine['last_seen'].strftime('%Y/%m/%d %H:%M') }}</div>
-  <div>IP: {{ machine['ip'] }}</div>
-  <div>SSH: {{ "on" if  (machine['port'] == '1') else "off" }}</div>
-</div>
-  <div class="tests">
-    {% if g.user %}
-      <a class="action" href="{{ url_for('node.scan_single', ip=machine['ip']) }}">Update</a>
-      <a class="action" href="{{ url_for('node.ping', ip=machine['ip']) }}">Ping</a>
-    {% endif %}
+{% block ssh %}
+  <div class="machine-grid-2">
+    <div class="machine-ssh">
+    </div>
+    <div class="machine-info">
+    </div>
   </div>
--->
+{% endblock %}
