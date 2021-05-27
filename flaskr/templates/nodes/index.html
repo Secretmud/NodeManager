@@ -19,12 +19,19 @@
       <tr class="item">
         <td>{{ machine['created'].strftime('%Y/%m/%d %H:%M') }}</td>
         <td>{{ machine['last_seen'].strftime('%Y/%m/%d %H:%M') }}</td>
-        <td>{{ machine['ip'] }}</td>
+        <td>{{ machine['ip'] }}
+          {% if request.url_rule.endpoint == "node.ping" %}
+            {% if machine['ip'] == node_ip %}
+              ({{ ping }}ms)
+            {% endif %}
+          {% endif %}
+        </td>
         <td>{{ "on" if  (machine['port'] == '1') else "off" }}</td>
         <td>
           {% if g.user %}
             <a class="action" href="{{ url_for('node.scan_single', ip=machine['ip']) }}">Update</a>
             <a class="action" href="{{ url_for('node.ping', ip=machine['ip']) }}">Ping</a>
+            <a class="action" href="{{ url_for('node.get_info', ip=machine['ip']) }}">Info</a>
           {% endif %}
         </td>
       </tr>
@@ -36,8 +43,14 @@
 {% block ssh %}
   <div class="machine-grid-2">
     <div class="machine-ssh">
+      <script src="{{ url_for('static', filename='node_modules/xterm/xterm.js')}}"></script>
     </div>
     <div class="machine-info">
+      {{ machine['id'] }} INTEGER PRIMARY KEY AUTOINCREMENT, </br>
+      {{ machine['lookup_id'] }} INTEGER NOT NULL,</br>
+      {{ machine['created'] }} TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,</br>
+      {{ machine['ip'] }} TEXT NOT NULL,</br>
+      {{ machine['last_seen'] }} TIMESTAMP NOT NULL</br>
     </div>
   </div>
 {% endblock %}

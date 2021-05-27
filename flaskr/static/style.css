@@ -27,7 +27,7 @@ article.post {
 
 .grid {
 	max-height: 50vh;
-	overflow-y: scroll;
+	overflow: scroll;
     border-collapse: collapse;
     width: 100%;
     border: 1px solid #ddd;
@@ -131,6 +131,11 @@ tr:not(:last-child) {
 
 .ssh {
     min-height: 50vh;
-    width: 100vw;
     background: aliceblue;
+}
+
+.machine-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 50%);
+    padding: 10px;
 }

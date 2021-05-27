@@ -17,16 +17,16 @@ class Singleton(type):
 class UnitSearch(metaclass=Singleton):
 
     def __init__(self):
-        self.start_ip = ""
-        self.subnet = ""
+        self.ip = []
+        self.timeout = 1
         ssh_total = 0
         active_total = 0
 
-    def set_ip(self, ip):
-        self.start_ip = ip
+    def set_ip(self, ip_list):
+        self.ip = ip_list
 
-    def set_subnet(self, subnet):
-        self.subnet = subnet
+    def set_timeout(self, timeout):
+        self.timeout = timeout
 
     """
     parallel_calls - creates a CPU pool, and checks active IPs in the range
@@ -35,10 +35,9 @@ class UnitSearch(metaclass=Singleton):
     """
 
     def parallel_calls(self):
-        pool = mp.Pool(processes=100)
+        pool = mp.Pool(processes=len(self.ip_list))
         ip = self.start_ip.rsplit('.', 1)
-        ips = [ip[0] + "." + str(i) for i in range(int(ip[1]), 255)]
-        active = pool.map(self.active_machines, ips)
+        active = pool.map(self.active_machines, self.ip)
         active = [i for i in active if i is not None]
         ssh = pool.map(self.locate_ssh, active)
         ssh = [i for i in ssh if i is not None]
@@ -54,11 +53,9 @@ class UnitSearch(metaclass=Singleton):
         except subprocess.CalledProcessError:
             respone = subprocess.CalledProcessError.stdout
 
-        print(f"{respone}")
-
     def locate_ssh(self, ip):
         s = socket(AF_INET, SOCK_STREAM)
-        s.settimeout(1)
+        s.settimeout(self.timeout)
         port = []
         port.append(22)
         try:
@@ -87,12 +84,13 @@ class UnitSearch(metaclass=Singleton):
                     return timing
             return "Nan"
         except subprocess.CalledProcessError:
-            return subprocess.CalledProcessError.stdout
+            return 1
 
 
 if __name__ == '__main__':
     startTime = time.time()
-    target = UnitSearch("192.168.1.1", "255.255.255.1")
+    target = UnitSearch()
+    target.set_ip([f"192.168.1.{i}" for i in range(1, 255)])
     target.parallel_calls()
     print(f"{time.time() - startTime}")
     print(f"{target.ssh_total} {target.active_total}")

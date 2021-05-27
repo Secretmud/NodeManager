@@ -14,6 +14,7 @@ bp = Blueprint('node', __name__)
 
 
 @bp.route('/')
+@login_required
 def index():
     db = get_db()
     nodes = db.execute(
@@ -34,7 +35,7 @@ def get_data():
         dict[i] = {"ip": online, "ssh": ssh_enabled}
         i += 1
 
-    return json.dumps(dict)
+    return dict
 
 
 @bp.route('/scan', methods=("GET", "POST"))
@@ -43,7 +44,9 @@ def scan():
     if request.method == "GET":
         db = get_db()
         hosts = get_data()
-        for host in hosts:
+        print(hosts)
+        error = 0
+        for host in hosts.keys():
             try:
                 ip = hosts[host]['ip']
                 ssh = hosts[host]['ssh']
@@ -71,11 +74,16 @@ def scan():
                                (ssh, ip))
                     db.commit()
             except TypeError:
-                print(f"Error: {TypeError}")
+                print(host)
+                error += 1
+
+    print(f"Errors: {error}")
 
     nodes = db.execute(
         "SELECT * FROM machine LEFT OUTER JOIN ports ON machine.id=ports.ip_id"
     ).fetchall()
+    for node in nodes:
+        print(node['id'], node['ip'])
 
     return render_template('nodes/index.html', machines=nodes)
 
@@ -112,7 +120,7 @@ def scan_single(ip):
 def ping(ip):
     db = get_db()
     check = db.execute("SELECT id FROM machine WHERE ip=?", (ip,)).fetchone()
-
+    ping_time = 0
     if check is not None:
         us = UnitSearch()
         ping_time = us.ping(ip)
@@ -123,5 +131,22 @@ def ping(ip):
     nodes = db.execute(
         "SELECT * FROM machine LEFT OUTER JOIN ports ON machine.id=ports.ip_id"
     ).fetchall()
+    machine = db.execute(
+        "SELECT ip FROM machine WHERE ip=?", (ip,)
+    ).fetchone()
 
-    return render_template('nodes/index.html', machines=nodes)
+    return render_template('nodes/index.html', machines=nodes, ping=ping_time, node_ip=machine['ip'])
+
+
+@bp.route('/<string:ip>/info')
+@login_required
+def get_info(ip):
+    db = get_db()
+    nodes = db.execute(
+        "SELECT * FROM machine LEFT OUTER JOIN ports ON machine.id=ports.ip_id"
+    ).fetchall()
+    machine = db.execute(
+        "SELECT * FROM machine WHERE ip=?", (ip,)
+    ).fetchone()
+
+    return render_template('nodes/index.html', machines=nodes, machine=machine)
