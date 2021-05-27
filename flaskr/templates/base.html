@@ -1,6 +1,8 @@
 <!doctype html>
 <title>{% block title %}{% endblock %} - Flaskr</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='node_modules/xterm/css/xterm.css') }}">
+<script src="{{ url_for('static', filename='node_modules/xterm/lib/xterm.js')}}"></script>
 <nav class="nav_men">
   <h1 class="site_name">Node Manager</h1>
   <ul class="nav_men_alignment align_end">

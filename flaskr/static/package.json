@@ -1,0 +1,14 @@
+{
+  "name": "NodeManager",
+  "version": "0.0.1",
+  "description": "A node manager, which lets you get an overview",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "xterm": "^4.12.0"
+  }
+}
