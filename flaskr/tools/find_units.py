@@ -21,12 +21,16 @@ class UnitSearch(metaclass=Singleton):
         self.timeout = 1
         ssh_total = 0
         active_total = 0
+        self.subnet = ""
 
     def set_ip(self, ip_list):
         self.ip = ip_list
 
     def set_timeout(self, timeout):
         self.timeout = timeout
+
+    def set_subnet(self, subnet):
+        self.subnet = subnet
 
     """
     parallel_calls - creates a CPU pool, and checks active IPs in the range
@@ -35,12 +39,13 @@ class UnitSearch(metaclass=Singleton):
     """
 
     def parallel_calls(self):
-        pool = mp.Pool(processes=len(self.ip_list))
-        ip = self.start_ip.rsplit('.', 1)
-        active = pool.map(self.active_machines, self.ip)
-        active = [i for i in active if i is not None]
-        ssh = pool.map(self.locate_ssh, active)
-        ssh = [i for i in ssh if i is not None]
+        pool = mp.Pool(processes=len(self.ip))
+        for i in range(0, len(self.ip)):
+            ip = self.ip[i].rsplit('.', 1)
+            active = pool.map(self.active_machines, self.ip)
+            active = [i for i in active if i is not None]
+            ssh = pool.map(self.locate_ssh, active)
+            ssh = [i for i in ssh if i is not None]
         return active, ssh
 
     def active_machines(self, ip):

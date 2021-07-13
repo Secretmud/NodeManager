@@ -44,17 +44,7 @@
   <div class="machine-grid-2">
     <div class="machine-ssh">
       <div id="terminal"></div>
-      <script>
-          const term = new Terminal();
-          term.open(document.getElementById("terminal"));
-          term.write("ID: {{ machine['lookup_id']}} $ ");
-          term.onKey('key', (key, ev) => {
-            if (key.keyCode == 13)
-                term.write('\n');
-            term.write(key);
-            term.refresh();
-          });
-      </script>
+      <script src="{{ url_for('static', filename='index.js') }}"></script>
     </div>
     <div class="machine-info">
       {{ machine['id'] }} INTEGER PRIMARY KEY AUTOINCREMENT, </br>
