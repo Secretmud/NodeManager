@@ -25,10 +25,11 @@ def index():
 
 def get_data():
     us = UnitSearch()
-    us.set_ip("192.168.1.1")
+    us.set_ip("192.168.1.0/24")
     us.set_subnet("255.255.255.0")
     online_machines, ssh_port_open = us.parallel_calls()
     dict = {}
+    print(dict)
     i = 0
     for online in online_machines:
         ssh_enabled = True if (online in ssh_port_open) else False
