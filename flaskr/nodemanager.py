@@ -27,15 +27,14 @@ def get_data():
     us = UnitSearch()
     us.set_ip("192.168.1.0/24")
     us.set_subnet("255.255.255.0")
-    online_machines, ssh_port_open = us.parallel_calls()
+    online_machines, ssh_port_open, time_taken = us.parallel_calls()
     dict = {}
-    print(dict)
     i = 0
     for online in online_machines:
         ssh_enabled = True if (online in ssh_port_open) else False
         dict[i] = {"ip": online, "ssh": ssh_enabled}
         i += 1
-
+    flash(f"Search took: {round(time_taken, 2)}s")
     return dict
 
 
@@ -53,7 +52,7 @@ def scan():
                 ssh = hosts[host]['ssh']
                 check = db.execute("SELECT id FROM machine WHERE ip=?", (ip,)).fetchone()
                 if check is None:
-                    db.execute("INSERT INTO machine (lookup_id, created, ip, last_seen) VALUES (?, ?, ?, ?)",
+                    db.execute("INSERT INTO machine (lookup_id, created, ip, last_attack) VALUES (?, ?, ?, ?)",
                                (session['user_id'], datetime.now(), ip, datetime.now()))
                     db.commit()
                 check_ssh = db.execute("SELECT id FROM ports WHERE "
@@ -66,7 +65,7 @@ def scan():
                     db.commit()
 
                 if check is not None:
-                    db.execute("UPDATE machine SET last_seen = ? WHERE ip=?",
+                    db.execute("UPDATE machine SET last_attack = ? WHERE ip=?",
                                (datetime.now(), ip))
                     db.commit()
                 if check_ssh is not None:

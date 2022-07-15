@@ -4,7 +4,14 @@
   {% block content %}
     <h1>{% block title %}Nodes{% endblock %}</h1>
     {% if g.user %}
-      <a class="action" href="{{ url_for('node.scan') }}">Scan</a>
+      <a class="scan" href="{{ url_for('node.scan') }}">Scan</a>
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+              {{ message }}
+            {% endfor %}
+        {% endif %}
+      {% endwith %}
     {% endif %}
 
     <table class="grid">
@@ -18,7 +25,7 @@
     {% for machine in machines %}
       <tr class="item">
         <td>{{ machine['created'].strftime('%Y/%m/%d %H:%M') }}</td>
-        <td>{{ machine['last_seen'].strftime('%Y/%m/%d %H:%M') }}</td>
+        <td>{{ machine['last_attack'].strftime('%Y/%m/%d %H:%M') }}</td>
         <td>{{ machine['ip'] }}
           {% if request.url_rule.endpoint == "node.ping" %}
             {% if machine['ip'] == node_ip %}
@@ -47,11 +54,11 @@
       <script src="{{ url_for('static', filename='index.js') }}"></script>
     </div>
     <div class="machine-info">
-      {{ machine['id'] }} INTEGER PRIMARY KEY AUTOINCREMENT, </br>
-      {{ machine['lookup_id'] }} INTEGER NOT NULL,</br>
-      {{ machine['created'] }} TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,</br>
-      {{ machine['ip'] }} TEXT NOT NULL,</br>
-      {{ machine['last_seen'] }} TIMESTAMP NOT NULL</br>
+      {{ machine['id'] }}</br>
+      {{ machine['lookup_id'] }}</br>
+      {{ machine['created'] }}</br>
+      {{ machine['ip'] }}</br>
+      {{ machine['last_attack'] }}</br>
     </div>
   </div>
 {% endblock %}

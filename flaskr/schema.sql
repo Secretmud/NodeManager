@@ -1,45 +1,47 @@
+DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS user;
 DROP TABLE IF EXISTS machine;
 DROP TABLE IF EXISTS ports;
-DROP TABLE IF EXISTS settings;
-DROP TABLE IF EXISTS ip_range;
+DROP TABLE IF EXISTS customers;
+DROP TABLE IF EXISTS payloads;
 
 CREATE TABLE user (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  role TEXT NOT NULL,
-  username TEXT UNIQUE NOT NULL,
-  password TEXT NOT NULL
+  username TEXT,
+  email TEXT,
+  password TEXT,
+  role TEXT,
+  reg_data timestamp
 );
 
 CREATE TABLE machine (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  hostname TEXT NULL,
-  lookup_id INTEGER NOT NULL,
-  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  ip TEXT NOT NULL,
-  last_seen TIMESTAMP NOT NULL,
-  FOREIGN KEY (lookup_id) REFERENCES user (id)
+  id INTEGER PRIMARY KEY,
+  lookup_id INTEGER,
+  cust_id INTEGER,
+  ip TEXT,
+  created timestamp,
+  last_attack timestamp,
+  online boolean,
+  FOREIGN KEY (cust_id) REFERENCES customers (id)
 );
 
 CREATE TABLE ports (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    port TEXT NOT NULL,
-    ip_id INTEGER NOT NULL,
-    FOREIGN KEY (ip_id) REFERENCES machine (id)
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  port TEXT NOT NULL,
+  ip_id INTEGER NOT NULL,
+  FOREIGN KEY (ip_id) REFERENCES machine (id)
 );
 
-CREATE TABLE settings (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    timeout DECIMAL DEFAULT 1.0,
-
-
+CREATE TABLE customers (
+  id INTEGER PRIMARY KEY,
+  name TEXT
 );
 
-CREATE TABLE ip_range (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    ip_start TEXT NOT NULL,
-    ip_end TEXT NOT NULL,
-    u_id INTEGER NOT NULL,
-    FOREIGN KEY (u_id) REFERENCES user (id)
+CREATE TABLE payloads (
+  id INTEGER PRIMARY KEY,
+  payload TEXT,
+  name TEXT,
+  type TEXT,
+  creator INTEGER,
+  FOREIGN KEY (creator) REFERENCES user (id)
 );

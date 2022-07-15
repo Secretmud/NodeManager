@@ -19,10 +19,8 @@
   </ul>
   {% if g.user %}
     <ul class="nav_men_alignment align_start grid_fill">
-      <li class="nav_men_item"><a href="{{ url_for('settings.setup') }}">Setup</a></li>
       <li class="nav_men_item"><a href="/">Home</a></li>
-      <li class="nav_men_item"><a href="#">2</a></li>
-      <li class="nav_men_item"><a href="#">1</a></li>
+      <li class="nav_men_item"><a href="{{ url_for('settings.setup') }}">Settings</a></li>
     </ul>
   {% endif %}
 </nav>

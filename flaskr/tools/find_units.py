@@ -18,7 +18,7 @@ class UnitSearch(metaclass=Singleton):
 
     def __init__(self):
         self.ip = []
-        self.timeout = 1
+        self.timeout = 0.2
         ssh_total = 0
         active_total = 0
         self.subnet = ""
@@ -29,7 +29,7 @@ class UnitSearch(metaclass=Singleton):
             ip = context[0].split(".")
             print(ip)
             print(context)
-            self.ip = [f"{ip[0]}.{ip[1]}.{ip[2]}.{i}" for i in range(int(ip[3]), 2**(32-int(context[1])))]
+            self.ip = [f"{ip[0]}.{ip[1]}.{ip[2]}.{i}" for i in range(int(ip[3]), 2**(32-int(context[1]))-1)]
         else:
             self.ip = ip_list
 
@@ -46,26 +46,34 @@ class UnitSearch(metaclass=Singleton):
     """
 
     def parallel_calls(self):
-        active = []
-        ssh = []
-        for ip in self.ip: 
-            a = self.active_machines(ip)
-            if a is not None:
-                active.append(a)
-            s = self.locate_ssh(ip)
-            if s is not None:
-                ssh.append(s)
-        return active, ssh
+        from time import perf_counter
+        from multiprocessing import Pool
+        pool = Pool()
+        start = perf_counter()
+        ip = pool.map(self.active_machines, self.ip)
+        ip = [i for i in ip if i is not None]
+        print(ip)
+        ssh = pool.map(self.locate_ssh, ip)
+        print(ssh)
+
+        time_taken = perf_counter() - start
+        return ip, ssh, time_taken
 
     def active_machines(self, ip):
         respone = None
-        try:
-            respone = subprocess.check_output(["ping", "-c", "1", "-i", "0.2", ip],
-                                              stderr=subprocess.STDOUT,
-                                              universal_newlines=True)
+        import os
+        if os.system(f"ping -c 1 {ip}") == 0:
             return ip
-        except subprocess.CalledProcessError:
-            respone = subprocess.CalledProcessError.stdout
+            """
+        s = socket(AF_INET, SOCK_STREAM)
+        s.settimeout(self.timeout)
+        try:
+            conn = s.connect((ip, 1))
+            s.close()
+            return ip
+        except error:
+            pass
+            """
 
     def locate_ssh(self, ip):
         s = socket(AF_INET, SOCK_STREAM)
@@ -77,7 +85,7 @@ class UnitSearch(metaclass=Singleton):
             s.close()
             return ip
         except error:
-            print(f"Couldn't connect to {ip} over port {port[0]}")
+            pass
 
     def ping(self, ip):
         import re
