@@ -41,14 +41,31 @@ def add_ip():
     db = get_db()
     customers = db.execute("SELECT * FROM customers").fetchall()
     if request.method == "POST":
-        file =  request.form["ip_file"]
-        ip = request.form["ip"]
+        ips = request.form["ip"]
+        print(ips)
         customer = request.form["customer"]
-        if file is not None:
-            with open(file, "r") as f:
-                ips = f.readall()
-            import datetime 
-            db.execute("INSTERT INTO machine (lookup_id, cust_id, ip, created, last_attack, online) VALUES (?,?,?,?,?,?)",
-                      (session["user_id"], customer, ip, datetime.now(), datetime.now(), True))
+        from datetime import datetime
+        file = request.files["file"]
+        if file.filename is not '':
+            file = request.files["file"]
+            try:
+                ips = file.read().decode("utf-8")
+                ips = ips.split("\n")
+                print(ips)
+                for ip in ips:
+                    context = ip.replace("/", ":")
+                    db.execute("INSERT INTO machine (lookup_id, cust_id, ip, created, last_attack, online) VALUES (?,?,?,?,?,?)",
+                                (session["user_id"], customer, context, datetime.now(), datetime.now(), True))
+            except FileNotFoundError as e:
+                print(f"Error: {e}")
+        else:
+            print("hrere")
+            db.execute("INSERT INTO machine (lookup_id, cust_id, ip, created, last_attack, online) VALUES (?,?,?,?,?,?)",
+                        (session["user_id"], customer, ips, datetime.now(), datetime.now(), True))
+
+
+
+        db.commit()
+            
 
     return render_template("settings/ip.html", customers=customers)

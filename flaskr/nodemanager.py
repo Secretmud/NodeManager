@@ -25,15 +25,19 @@ def index():
 
 def get_data():
     us = UnitSearch()
-    us.set_ip("192.168.1.0/24")
-    us.set_subnet("255.255.255.0")
-    online_machines, ssh_port_open, time_taken = us.parallel_calls()
+    db = get_db()
+    ip_fetch = db.execute("SELECT ip FROM machine").fetchall()
+    ip_list = []
     dict = {}
-    i = 0
-    for online in online_machines:
-        ssh_enabled = True if (online in ssh_port_open) else False
-        dict[i] = {"ip": online, "ssh": ssh_enabled}
-        i += 1
+    for ip in ip_fetch:
+        ip_list.append(ip['ip'])
+        us.set_ip(ip_list=ip_list)
+        online_machines, ssh_port_open, time_taken = us.parallel_calls()
+        i = 0
+        for online in online_machines:
+            ssh_enabled = True if (online in ssh_port_open) else False
+            dict[i] = {"ip": online, "ssh": ssh_enabled}
+            i += 1
     flash(f"Search took: {round(time_taken, 2)}s")
     return dict
 
@@ -98,7 +102,7 @@ def scan_single(ip):
         us = UnitSearch()
         ip_check = us.active_machines(ip)
         ssh_check = True if (us.locate_ssh(ip) == ip) else False
-        db.execute("UPDATE machine SET last_seen = ? WHERE ip=?",
+        db.execute("UPDATE machine SET last_attack = ? WHERE ip=?",
                    (datetime.now(), ip_check))
         db.execute("UPDATE ports SET port = ? WHERE"
                    " ip_id=(SELECT machine.id FROM machine WHERE machine.ip=?)",

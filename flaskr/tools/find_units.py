@@ -24,8 +24,9 @@ class UnitSearch(metaclass=Singleton):
         self.subnet = ""
 
     def set_ip(self, ip_list):
-        context = ip_list.split("/")
-        if len(context) > 1:
+        context = ip_list
+        if ":" in context:
+            context = context.split(":")
             ip = context[0].split(".")
             print(ip)
             print(context)
