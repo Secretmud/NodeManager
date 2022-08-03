@@ -29,7 +29,7 @@
         <td>{{ machine['ip'] }}
           {% if request.url_rule.endpoint == "node.ping" %}
             {% if machine['ip'] == node_ip %}
-              ({{ ping }}ms)
+              ({{ ping }})
             {% endif %}
           {% endif %}
         </td>

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<form action="" method="post" class="form" enctype="multipart/form-data">
+    <select name="customer" id="">
+        {% for customer in customers %}
+        <option value="{{ customer['id'] }}">{{ customer['name'] }}</option>
+        {% endfor %}
+    </select>
+    <label for="ip">IP</label>
+    <input type="text" name="ip">
+    <input type="file" name="file">
+    <input type="submit" value="Add IP">
+</form>
+{% endblock %}

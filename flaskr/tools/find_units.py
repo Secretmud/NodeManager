@@ -5,16 +5,7 @@ import subprocess
 import multiprocessing as mp
 
 
-class Singleton(type):
-    _instance = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instance:
-            cls._instance[cls] = super.__call__(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instance[cls]
-
-
-class UnitSearch(metaclass=Singleton):
+class UnitSearch():
 
     def __init__(self):
         self.ip = []
@@ -25,12 +16,11 @@ class UnitSearch(metaclass=Singleton):
 
     def set_ip(self, ip_list):
         context = ip_list
-        if ":" in context:
-            context = context.split(":")
-            ip = context[0].split(".")
-            print(ip)
-            print(context)
-            self.ip = [f"{ip[0]}.{ip[1]}.{ip[2]}.{i}" for i in range(int(ip[3]), 2**(32-int(context[1]))-1)]
+        import ipaddress
+        if ":" in context and "www" not in context:
+            context = context.replace(":", "/")
+            for addr in ipaddress.IPv4Network(context):
+                self.ip.append(str(addr))
         else:
             self.ip = ip_list
 
@@ -65,22 +55,11 @@ class UnitSearch(metaclass=Singleton):
         import os
         if os.system(f"ping -c 1 {ip}") == 0:
             return ip
-            """
-        s = socket(AF_INET, SOCK_STREAM)
-        s.settimeout(self.timeout)
-        try:
-            conn = s.connect((ip, 1))
-            s.close()
-            return ip
-        except error:
-            pass
-            """
 
     def locate_ssh(self, ip):
         s = socket(AF_INET, SOCK_STREAM)
         s.settimeout(self.timeout)
-        port = []
-        port.append(22)
+        port = [22]
         try:
             conn = s.connect((ip, port[0]))
             s.close()
@@ -89,26 +68,9 @@ class UnitSearch(metaclass=Singleton):
             pass
 
     def ping(self, ip):
-        import re
-        print(ip)
-        try:
-            result = subprocess.run(
-                # Command as a list, to avoid shell=True
-                ['ping', '-c', '1', ip],
-                # Expect textual output, not bytes; let Python .decode() on the fly
-                text=True,
-                # Shorthand for stdout=PIPE stderr=PIPE etc etc
-                capture_output=True,
-                # Raise an exception if ping fails (maybe try/except it separately?)
-                check=True)
-            for line in result.stdout.splitlines():
-                if "icmp_seq" in line:
-                    timing = line.split('time=')[-1].split(' ms')[0]
-                    print(ip, timing)
-                    return timing
-            return "Nan"
-        except subprocess.CalledProcessError:
-            return 1
+        import os
+        if os.system(f"ping -c 1 {ip}") == 0:
+            return f"Reached"
 
 
 if __name__ == '__main__':

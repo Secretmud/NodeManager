@@ -28,6 +28,8 @@ CREATE TABLE machine (
 CREATE TABLE ports (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   port TEXT NOT NULL,
+  name TEXT,
+  description TEXT,
   ip_id INTEGER NOT NULL,
   FOREIGN KEY (ip_id) REFERENCES machine (id)
 );

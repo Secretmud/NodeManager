@@ -1,5 +1,4 @@
 import json
-
 import celery
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
@@ -100,14 +99,17 @@ def scan_single(ip):
 
     if check is not None:
         us = UnitSearch()
-        ip_check = us.active_machines(ip)
-        ssh_check = True if (us.locate_ssh(ip) == ip) else False
-        db.execute("UPDATE machine SET last_attack = ? WHERE ip=?",
-                   (datetime.now(), ip_check))
-        db.execute("UPDATE ports SET port = ? WHERE"
-                   " ip_id=(SELECT machine.id FROM machine WHERE machine.ip=?)",
-                   (ssh_check, ip_check))
+        us.set_ip(ip)
+        ip_check, ssh_check, t = us.parallel_calls()
+        for ssh, ip in zip(ssh_check, ip_check):
+            db.execute("UPDATE machine SET last_attack = ? WHERE ip=?",
+                    (datetime.now(), ip))
+            if (ssh is not None):
+                db.execute("UPDATE ports SET port = ? WHERE"
+                        " ip_id=(SELECT machine.id FROM machine WHERE machine.ip=?)",
+                        (ssh, ip))
         db.commit()
+        flash(f"Search took: {round(t, 2)}s")
 
     else:
         abort(404, "The requested ip is not available")
@@ -115,6 +117,7 @@ def scan_single(ip):
     nodes = db.execute(
         "SELECT * FROM machine LEFT OUTER JOIN ports ON machine.id=ports.ip_id"
     ).fetchall()
+
 
     return render_template('nodes/index.html', machines=nodes)
 
